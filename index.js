@@ -61,3 +61,25 @@ server.post('/api/reviews',  (req, res)  =>  {
             res.status(502).json({ error: err });
         });
 });
+
+server.get('/api/reviews',  (req, res)  =>  {
+    db('users').where('username', req.body.username)
+        .then(users =>  {
+            if(users.length)    {
+                db('reviews').join('books', 'reviews.book_id', '=', 'books.id')
+                .select('books.title', 'books.author', 'books.publisher', 'books.image', 'reviews.content', 'reviews.rating')
+                .where('reviews.user_id', users[0].id)
+                    .then(data  =>  {
+                        res.status(200).json({ books: data });
+                    })
+                    .catch(err  =>  {
+                        res.status(500).json({ error: "Please provide all necessary data" });
+                    })
+            }   else {
+                res.status(404).json({ error: "Could not find the user" })
+            }
+        })
+        .catch(err  =>  {
+            res.status(502).json({ error: err })
+        })
+})
