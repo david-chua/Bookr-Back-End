@@ -1,0 +1,57 @@
+Arguments: 
+  /Users/ryanMatthews/.nvm/versions/node/v10.11.0/bin/node /usr/local/Cellar/yarn/1.3.2/libexec/bin/yarn.js
+
+PATH: 
+  /Users/ryanMatthews/.nvm/versions/node/v10.11.0/bin:/Users/ryanMatthews/Downloads/google-cloud-sdk/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin
+
+Yarn version: 
+  1.3.2
+
+Node version: 
+  10.11.0
+
+Platform: 
+  darwin x64
+
+npm manifest: 
+  {
+    "name": "Bookr-Back-End",
+    "version": "1.0.0",
+    "main": "index.js",
+    "repository": "https://github.com/fswptbuildweek-bookr/Bookr-Back-End.git",
+    "author": "Ryntak94 <ryan.matthews.professional@gmail.com>",
+    "license": "MIT",
+    "scripts": {
+      "start": "nodemon index.js"
+    },
+    "dependencies": {
+        "axios": "^0.18.0",
+        "bcryptjs": "^2.4.3",
+        "cors": "^2.8.5",
+        "dotenv": "^6.2.0",
+        "express": "^4.16.4",
+        "helmet": "^3.15.0",
+        "jsonwebtoken": "^8.4.0",
+        "knex": "^0.15.2",
+        "sqlite3": "^4.0.4",
+    },
+    "devDependencies": {
+      "jest": "^23.6.0",
+      "supertest": "^3.3.0",
+      "nodemon": "^1.18.6"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
+
+Trace: 
+  SyntaxError: /Users/ryanMatthews/Desktop/lambdaSchool/Bookr-Back-End/package.json: Unexpected token } in JSON at position 552
+      at JSON.parse (<anonymous>)
+      at /usr/local/Cellar/yarn/1.3.2/libexec/lib/cli.js:770:59
+      at Generator.next (<anonymous>)
+      at step (/usr/local/Cellar/yarn/1.3.2/libexec/lib/cli.js:92:30)
+      at /usr/local/Cellar/yarn/1.3.2/libexec/lib/cli.js:103:13
