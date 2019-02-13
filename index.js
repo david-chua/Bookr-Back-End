@@ -36,33 +36,47 @@ server.post('/api/reviews',  (req, res)  =>  {
     const book = req.body.book;
     let book_id = null;
 
-    db('books').where('title', book.title)
-        .then(id    =>  {
-            if(id.length === 0) {
-                db('books').insert({ title: book.title, author: book.author, publisher: book.publisher, image: book.image })
-                    .then(ids   =>  {
-                        book_id = ids[0];
-                        res.status(201).json({id: book_id});
-                    })
-            }   else {
-                book_id = ids[0];
+    db('users').where('username', review.username)
+        .then(users =>  {
+            if(users.length === 0)  {
+                res.status(404).json({ error: "Could not find user" });
             }
-            db('users').where('username', review.username)
-                .then(users =>  {
-                    db('reviews').insert({ content: review.content, book_id: book_id, user_id: users[0].id, rating: review.rating })
-                        .then(ids   =>  {
-                            res.status(201).json({ id: ids[0] });
-                        })
-                        .catch(err  =>  {
-                            res.status(500).json({ error: "Please provide all necessary information for the review" });
-                        });
+            db('books').where('title', book.title)
+                .then(books    =>  {
+                    if(books.length === 0) {
+                        db('books').insert({ title: book.title, author: book.author, publisher: book.publisher, image: book.image })
+                            .then(ids   =>  {
+                                book_id = ids[0];
+                            })
+                            .then(()    =>  {
+                                db('reviews').insert({ content: review.content, book_id: book_id, user_id: users[0].id, rating: review.rating })
+                                    .then(ids   =>  {
+                                        res.status(201).json({ id: ids[0] });
+                                    })
+                                    .catch(err  =>  {
+                                        res.status(500).json({ error: "Please provide all necessary information for the review" });
+                                    });
+                            })
+                            .catch(err  =>  {
+                                res.status(500).json({ error: "Please provide all necessary information for the book" });
+                            })
+                    }   else {
+                        book_id = books[0].id;
+                        db('reviews').insert({ content: review.content, book_id: book_id, user_id: users[0].id, rating: review.rating })
+                            .then(ids   =>  {
+                                res.status(201).json({ id: ids[0] });
+                            })
+                            .catch(err  =>  {
+                                res.status(500).json({ error: "Please provide all necessary information for the review" });
+                            });
+                    }
                 })
                 .catch(err  =>  {
-                    res.status(400).json({ error: "Could not locate the user" });
+                    res.status(502).json({ error: err });
                 });
         })
         .catch(err  =>  {
-            res.status(502).json({ error: err });
+            res.status(400).json({ error: "Could not locate the user" });
         });
 });
 
@@ -85,7 +99,7 @@ server.get('/api/reviews',  (req, res)  =>  {
         })
         .catch(err  =>  {
             res.status(502).json({ error: err })
-        })
+        });
 })
 
 server.put('/api/reviews',  (req, res)  =>  {
