@@ -17,20 +17,24 @@ server.listen(PORT, function() {
 
 server.post('/api/signup',  (req, res)  =>  {
     const creds = req.body;
-    db('users').insert(creds)
-        .then(id    =>  {
-            const token = "XXXXXXXXXX";
-            res.status(201).json({ id: id[0], token: token });
-        })
-        .catch(err  =>  {
-            res.status.json({ error: "Please provide a username or password" });
-        })
+    if(creds.username.length && creds.password.length)  {
+        db('users').insert(creds)
+            .then(id    =>  {
+                const token = "XXXXXXXXXX";
+                res.status(201).json({ id: id[0], token: token });
+            })
+            .catch(err  =>  {
+                res.status.json({ error: "Please provide a username or password" });
+            })
+    }   else {
+        res.status(500).json({ error: "Please provide a username and a password" })
+    }
 })
 
 server.post('/api/reviews',  (req, res)  =>  {
     const review = req.body.book.review;
     const book = req.body.book;
-    const book_id;
+    let book_id = null;
 
     db('books').where('title', book.title)
         .then(id    =>  {
@@ -100,7 +104,7 @@ server.put('/api/reviews',  (req, res)  =>  {
                     res.status(202).json({ id: ids[0] });
                 })
                 .catch(err  =>  {
-                    res.status(500).json({ error: "Please make sure you provided all of the correct data" }))
+                    res.status(500).json({ error: "Please make sure you provided all of the correct data" })
                 })
             }   else {
                 res.status(404).json({ error: "Could not find the user" });
