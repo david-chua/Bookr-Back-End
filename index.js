@@ -45,7 +45,7 @@ server.post('/api/reviews',  (req, res)  =>  {
             }
             db('users').where('username', review.username)
                 .then(users =>  {
-                    db('reviews').insert({ content: review.content, user_id: users[0].id, rating: review.rating })
+                    db('reviews').insert({ content: review.content, book_id: book_id, user_id: users[0].id, rating: review.rating })
                         .then(ids   =>  {
                             res.status(201).json({ id: ids[0] });
                         })
@@ -83,3 +83,30 @@ server.get('/api/reviews',  (req, res)  =>  {
             res.status(502).json({ error: err })
         })
 })
+
+server.put('/api/reviews',  (req, res)  =>  {
+    db('users').where('username', req.body.username)
+        .then(users =>  {
+            if(users.length)    {
+                db('reviews')
+                .where('id', req.body.review_id)
+                .update({
+                    content: req.body.content,
+                    rating: req.body.rating,
+                    user_id: req.body.user_id,
+                    book_id: req.body.book_id,
+                })
+                .then(ids   =>  {
+                    res.status(202).json({ id: ids[0] });
+                })
+                .catch(err  =>  {
+                    res.status(500).json({ error: "Please make sure you provided all of the correct data" }))
+                })
+            }   else {
+                res.status(404).json({ message: "Could not find the user" });
+            }
+        })
+        .catch(err  =>  {
+            res.status(500).json({ error: err });
+        });
+});
