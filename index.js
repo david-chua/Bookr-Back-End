@@ -38,7 +38,7 @@ server.post('/api/reviews',  (req, res)  =>  {
                 db('books').insert({ title: book.title, author: book.author, publisher: book.publisher, image: book.image })
                     .then(ids   =>  {
                         book_id = ids[0];
-                        res.status(201).json(id: book_id);
+                        res.status(201).json({id: book_id});
                     })
             }   else {
                 book_id = ids[0];
@@ -103,10 +103,32 @@ server.put('/api/reviews',  (req, res)  =>  {
                     res.status(500).json({ error: "Please make sure you provided all of the correct data" }))
                 })
             }   else {
-                res.status(404).json({ message: "Could not find the user" });
+                res.status(404).json({ error: "Could not find the user" });
             }
         })
         .catch(err  =>  {
             res.status(500).json({ error: err });
         });
 });
+
+server.delete('/api/reviews',   (req, res)  =>  {
+    db('users').where('username',   req.body.username)
+        .then(users =>  {
+            if(users.length)    {
+                db('reviews')
+                .where('id', req.body.review_id)
+                .del()
+                .then(data  =>  {
+                    res.status(203).json({ message: "Review deleted succesfully" });
+                })
+                .catch(err  =>  {
+                    res.status(400).json({ error: "Could not find the review to delete" });
+                })
+            }   else {
+                res.status(404).json({ error: "Could not find the user" });
+            }
+        })
+        .catch(err  =>  {
+            res.status(500).json({ error: err })
+        })
+})
