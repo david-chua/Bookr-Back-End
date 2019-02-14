@@ -11,7 +11,7 @@ const db = knex(dbConfig.development);
 server.use(express.json());
 server.use(helmet());
 
-const PORT = 3300;
+const PORT = process.env.port || 3300;
 
 const { authenticate } = require("./customMiddleware/authenticate.js");
 
@@ -108,20 +108,16 @@ server.post("/api/reviews", authenticate, (req, res) => {
                 res.status(201).json({ id: ids[0] });
               })
               .catch(err => {
-                res
-                  .status(500)
-                  .json({
-                    error:
-                      "Please provide all necessary information for the review"
-                  });
+                res.status(500).json({
+                  error:
+                    "Please provide all necessary information for the review"
+                });
               });
           })
           .catch(err => {
-            res
-              .status(500)
-              .json({
-                error: "Please provide all necessary information for the book"
-              });
+            res.status(500).json({
+              error: "Please provide all necessary information for the book"
+            });
           });
       } else {
         book_id = books[0].id;
@@ -136,11 +132,9 @@ server.post("/api/reviews", authenticate, (req, res) => {
             res.status(201).json({ id: ids[0] });
           })
           .catch(err => {
-            res
-              .status(500)
-              .json({
-                error: "Please provide all necessary information for the review"
-              });
+            res.status(500).json({
+              error: "Please provide all necessary information for the review"
+            });
           });
       }
     })
@@ -182,11 +176,9 @@ server.put("/api/reviews", authenticate, (req, res) => {
       res.status(202).json({ message: "Success" });
     })
     .catch(err => {
-      res
-        .status(500)
-        .json({
-          error: "Please make sure you provided all of the correct data"
-        });
+      res.status(500).json({
+        error: "Please make sure you provided all of the correct data"
+      });
     });
 });
 
