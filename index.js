@@ -115,7 +115,7 @@ server.put('/api/reviews',  (req, res)  =>  {
                     book_id: req.body.book_id,
                 })
                 .then(ids   =>  {
-                    res.status(202).json({ id: ids[0] });
+                    res.status(202).json({ message: "Success" });
                 })
                 .catch(err  =>  {
                     res.status(500).json({ error: "Please make sure you provided all of the correct data" })
