@@ -27,11 +27,7 @@ const generateToken = (username, user_id)    =>  {
     };
 
     const secret = process.env.JWT_SECRET;
-    console.log(secret);
-    console.log(payload);
-    console.log(options);
     const token = jwt.sign(payload, secret, options);
-    console.log(token);
     return token;
 }
 
@@ -43,10 +39,10 @@ server.post('/api/signup',  (req, res)  =>  {
     const creds = req.body;
     creds.password = bcrypt.hashSync(creds.password);
     if(creds.username.length && creds.password.length)  {
-        db('users').insert(creds)
+            db('users').insert(creds)
             .then(ids    =>  {
                 const token = generateToken(creds.username, ids[0]);
-                res.status(201).json({ id: id[0], token: token });
+                res.status(201).json({ id: ids[0], token: token });
             })
             .catch(err  =>  {
                 res.status(500).json({ error: "Please provide a username or password" });
@@ -54,6 +50,22 @@ server.post('/api/signup',  (req, res)  =>  {
     }   else {
         res.status(500).json({ error: "Please provide a username and a password" })
     }
+})
+
+server.post('/api/login',   (req, res)  =>  {
+    const creds = req.body
+    db('users').where('username', /ryntak/i)
+        .then(users =>  {
+            if(users.length && bcrypt.compareSync(creds.password, users[0].password))   {
+                const token = generateToken(users[0].username, users[0].id)
+                res.status(200).json({ token });
+            }   else {
+                res.status(500).json({ error: "Incorrect username or password" });
+            }
+        })
+        .catch(err  =>  {
+            res.status(500).json({ error: "Incorrect username or password" });
+        })
 })
 
 server.post('/api/reviews',  authenticate, (req, res)  =>  {
@@ -69,7 +81,7 @@ server.post('/api/reviews',  authenticate, (req, res)  =>  {
                             book_id = ids[0];
                         })
                         .then(()    =>  {
-                            db('reviews').insert({ content: review.content, book_id: book_id, user_id: users[0].id, rating: review.rating })
+                            db('reviews').insert({ content: review.content, book_id: book_id, user_id: user_id, rating: review.rating })
                                 .then(ids   =>  {
                                     res.status(201).json({ id: ids[0] });
                                 })
@@ -82,7 +94,7 @@ server.post('/api/reviews',  authenticate, (req, res)  =>  {
                         })
                     }   else {
                         book_id = books[0].id;
-                        db('reviews').insert({ content: review.content, book_id: book_id, user_id: users[0].id, rating: review.rating })
+                        db('reviews').insert({ content: review.content, book_id: book_id, user_id: user_id, rating: review.rating })
                             .then(ids   =>  {
                                 res.status(201).json({ id: ids[0] });
                             })
