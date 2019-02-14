@@ -11,7 +11,7 @@ const db = knex(dbConfig.development);
 server.use(express.json());
 server.use(helmet());
 
-const PORT = process.env.port || 3300;
+const PORT = process.env.PORT || 3300;
 
 const { authenticate } = require("./customMiddleware/authenticate.js");
 
