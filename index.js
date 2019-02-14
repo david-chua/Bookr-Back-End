@@ -1,13 +1,14 @@
 const express = require("express");
 const helmet = require("helmet");
 const knex = require("knex");
-const dbConfig = require("./knexfile");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const server = express();
-const db = knex(dbConfig.development);
+const dbEngine = process.env.DB || "development";
+const dbConfig = require("./knexfile.js")[dbEngine];
+const db = knex(dbConfig);
 server.use(express.json());
 server.use(helmet());
 
