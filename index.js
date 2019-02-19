@@ -1,38 +1,44 @@
-const express = require('express');
-const helmet = require('helmet');
-const knex = require('knex');
-const dbConfig = require('./knexfile');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const express = require("express");
+const helmet = require("helmet");
+const knex = require("knex");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const cors=require("cors");
+require("dotenv").config();
 
 const server = express();
-const db = knex(dbConfig.development);
+const dbEngine = process.env.DB || "development";
+const dbConfig = require("./knexfile.js")[dbEngine];
+const db = knex(dbConfig);
 server.use(express.json());
 server.use(helmet());
+server.use(cors());
 
-const PORT = 3300;
+const PORT = process.env.PORT || 3300;
 
-const { authenticate } = require('./customMiddleware/authenticate.js');
+const { authenticate } = require("./customMiddleware/authenticate.js");
 
-const generateToken = (username, user_id)    =>  {
-    const payload = {
-        username,
-        user_id
-    };
+const generateToken = (username, user_id) => {
+  const payload = {
+    username,
+    user_id
+  };
 
-    const options   =   {
-        expiresIn: '1h',
-        jwtid: 'BookrToken'
-    };
+  const options = {
+    expiresIn: "1h",
+    jwtid: "BookrToken"
+  };
 
-    const secret = process.env.JWT_SECRET;
-    const token = jwt.sign(payload, secret, options);
-    return token;
-}
+  const secret = process.env.JWT_SECRET;
+  const token = jwt.sign(payload, secret, options);
+  return token;
+};
 
 server.listen(PORT, function() {
   console.log(`\n=== Web API Listening on http://localhost:${PORT} ===\n`);
+});
+server.get("/", (req, res) => {
+  res.status(200).json("Hello world");
 });
 
 server.post('/api/signup',  (req, res)  =>  {
@@ -68,44 +74,70 @@ server.post('/api/login',   (req, res)  =>  {
         })
 })
 
-server.post('/api/reviews/',  authenticate, (req, res)  =>  {
-    const review = req.body.book.review;
-    const book = req.body.book;
-    const user_id = req.decoded.user_id;
-    let book_id = null;
-        db('books').where('title', book.title)
-            .then(books    =>  {
-                if(books.length === 0) {
-                    db('books').insert({ title: book.title, author: book.author, publisher: book.publisher, image: book.image })
-                        .then(ids   =>  {
-                            book_id = ids[0];
-                        })
-                        .then(()    =>  {
-                            db('reviews').insert({ content: review.content, book_id: book_id, user_id: user_id, rating: review.rating })
-                                .then(ids   =>  {
-                                    res.status(201).json({ id: ids[0] });
-                                })
-                                .catch(err  =>  {
-                                    res.status(500).json({ error: "Please provide all necessary information for the review" });
-                                });
-                        })
-                        .catch(err  =>  {
-                            res.status(500).json({ error: "Please provide all necessary information for the book" });
-                        })
-                    }   else {
-                        book_id = books[0].id;
-                        db('reviews').insert({ content: review.content, book_id: book_id, user_id: user_id, rating: review.rating })
-                            .then(ids   =>  {
-                                res.status(201).json({ id: ids[0] });
-                            })
-                            .catch(err  =>  {
-                                res.status(500).json({ error: "Please provide all necessary information for the review" });
-                            });
-                    }
-                })
-                .catch(err  =>  {
-                    res.status(502).json({ error: err });
+server.post("/api/reviews", authenticate, (req, res) => {
+  const review = req.body.book.review;
+  const book = req.body.book;
+  const user_id = req.decoded.user_id;
+  let book_id = null;
+  db("books")
+    .where("title", book.title)
+    .then(books => {
+      if (books.length === 0) {
+        db("books")
+          .insert({
+            title: book.title,
+            author: book.author,
+            publisher: book.publisher,
+            image: book.image
+          })
+          .then(ids => {
+            book_id = ids[0];
+          })
+          .then(() => {
+            db("reviews")
+              .insert({
+                content: review.content,
+                book_id: book_id,
+                user_id: user_id,
+                rating: review.rating
+              })
+              .then(ids => {
+                res.status(201).json({ id: ids[0] });
+              })
+              .catch(err => {
+                res.status(500).json({
+                  error:
+                    "Please provide all necessary information for the review"
                 });
+              });
+          })
+          .catch(err => {
+            res.status(500).json({
+              error: "Please provide all necessary information for the book"
+            });
+          });
+      } else {
+        book_id = books[0].id;
+        db("reviews")
+          .insert({
+            content: review.content,
+            book_id: book_id,
+            user_id: user_id,
+            rating: review.rating
+          })
+          .then(ids => {
+            res.status(201).json({ id: ids[0] });
+          })
+          .catch(err => {
+            res.status(500).json({
+              error: "Please provide all necessary information for the review"
+            });
+          });
+      }
+    })
+    .catch(err => {
+      res.status(502).json({ error: err });
+    });
 });
 
 server.get('/api/reviews/:book_id',  authenticate, (req, res)  =>  {
@@ -156,31 +188,33 @@ server.get('/api/books/',  authenticate,   (req, res)  =>  {
         })
 })
 
-server.put('/api/reviews',  authenticate,   (req, res)  =>  {
-    db('reviews')
-        .where('id', req.body.review_id)
-        .update({
-            content: req.body.content,
-            rating: req.body.rating,
-            user_id: req.decoded.user_id,
-            book_id: req.body.book_id,
-        })
-        .then(ids   =>  {
-            res.status(202).json({ message: "Success" });
-        })
-        .catch(err  =>  {
-            res.status(500).json({ error: "Please make sure you provided all of the correct data" })
-        })
+server.put("/api/reviews", authenticate, (req, res) => {
+  db("reviews")
+    .where("id", req.body.review_id)
+    .update({
+      content: req.body.content,
+      rating: req.body.rating,
+      user_id: req.decoded.user_id,
+      book_id: req.body.book_id
+    })
+    .then(ids => {
+      res.status(202).json({ message: "Success" });
+    })
+    .catch(err => {
+      res.status(500).json({
+        error: "Please make sure you provided all of the correct data"
+      });
+    });
 });
 
-server.delete('/api/reviews',   authenticate, (req, res)  =>  {
-    db('reviews')
-        .where('id', req.body.review_id)
-        .del()
-        .then(data  =>  {
-            res.status(203).json({ message: "Review deleted succesfully" });
-        })
-        .catch(err  =>  {
-            res.status(400).json({ error: "Could not find the review to delete" });
-        })
-})
+server.delete("/api/reviews", authenticate, (req, res) => {
+  db("reviews")
+    .where("id", req.body.review_id)
+    .del()
+    .then(data => {
+      res.status(203).json({ message: "Review deleted succesfully" });
+    })
+    .catch(err => {
+      res.status(400).json({ error: "Could not find the review to delete" });
+    });
+});
