@@ -137,9 +137,10 @@ server.post("/api/reviews", authenticate, (req, res) => {
 
 server.get('/api/reviews/:book_id',  authenticate, (req, res)  =>  {
     db('reviews').join('books', 'reviews.book_id', '=', 'books.id').join('users', 'reviews.user_id', '=', 'users.id')
-        .select('books.title', 'books.author', 'books.publisher', 'books.image', 'reviews.content', 'reviews.rating', 'users.username')
+        .select('books.title', 'books.author', 'books.publisher', 'books.image', 'reviews.id', 'reviews.content', 'reviews.rating', 'users.username')
         .where('reviews.book_id', req.params.book_id)
         .then(data  =>  {
+            console.log(data);
             const reviews = data.map(review  => {
                 return {
                     id: review.id,
