@@ -142,6 +142,7 @@ server.get('/api/reviews/:book_id',  authenticate, (req, res)  =>  {
         .then(data  =>  {
             const reviews = data.map(review  => {
                 return {
+                    id: review.id,
                     reviewer: review.username,
                     content: review.content,
                     rating: review.rating
