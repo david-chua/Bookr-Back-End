@@ -1,7 +1,7 @@
 
 exports.up = function(knex, Promise) {
     return knex.schema.createTable('books',  table   =>  {
-        table.increments();
+        table.increments('id');
         table.string('title').notNullable();
         table.unique('title');
         table.string('author').notNullable();
