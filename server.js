@@ -140,7 +140,6 @@ server.get('/api/reviews/:book_id',  authenticate, (req, res)  =>  {
         .select('books.title', 'books.author', 'books.publisher', 'books.image', 'reviews.content', 'reviews.rating', 'users.username')
         .where('reviews.book_id', req.params.book_id)
         .then(data  =>  {
-            console.log(data)
             const reviews = data.map(review  => {
                 return {
                     reviewer: review.username,
