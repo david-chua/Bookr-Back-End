@@ -203,9 +203,9 @@ server.put("/api/reviews", authenticate, (req, res) => {
     });
 });
 
-server.delete("/api/reviews", authenticate, (req, res) => {
+server.delete("/api/reviews/:id", authenticate, (req, res) => {
   db("reviews")
-    .where("id", req.body.review_id)
+    .where("id", req.params.id)
     .del()
     .then(data => {
       res.status(203).json({ message: "Review deleted succesfully" });

@@ -279,7 +279,7 @@ describe('the route handlers',  ()  =>  {
         })
     })
 
-    describe('delete /api/reviews', async   ()  =>  {
+    describe('delete /api/reviews/:id', async   ()  =>  {
         it('responds with 203', async   ()  =>  {
             const body  =   { username: "Username", password: "Password" };
             const signup = await request(server).post('/api/signup').send(body);
@@ -297,7 +297,7 @@ describe('the route handlers',  ()  =>  {
             }
             const token = signup.body.token;
             const review = await request(server).post('/api/reviews').send(bookReview).set({ Authorization: token});
-            const response = await request(server).delete('/api/reviews').send({review_id: review.body.id}).set({ Authorization: token });
+            const response = await request(server).delete(`/api/reviews/${review.body.id}`).set({ Authorization: token });
             expect(response.status).toBe(203);
         })
 
@@ -318,7 +318,7 @@ describe('the route handlers',  ()  =>  {
             }
             const token = signup.body.token;
             const review = await request(server).post('/api/reviews').send(bookReview).set({ Authorization: token});
-            const response = await request(server).delete('/api/reviews').send({review_id: review.body.id}).set({ Authorization: token });
+            const response = await request(server).delete(`/api/reviews/${review.body.id}`).set({ Authorization: token });
             expect(response.body.message).toBe("Review deleted succesfully");
         })
 
@@ -326,7 +326,7 @@ describe('the route handlers',  ()  =>  {
             const body  =   { username: "Username", password: "Password" };
             const signup = await request(server).post('/api/signup').send(body);
             const token = signup.body.token;
-            const response = await request(server).delete('/api/reviews').send({review_id: 1}).set({ Authorization: token });
+            const response = await request(server).delete('/api/reviews/1').set({ Authorization: token });
             expect(response.body.message).toBe("Review deleted succesfully");
         })
     })
