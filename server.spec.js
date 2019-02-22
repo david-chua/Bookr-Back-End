@@ -214,7 +214,7 @@ describe('the route handlers',  ()  =>  {
         })
     })
 
-    describe('put /api/reviews',    async   ()  =>  {
+    describe('put /api/reviews/:id',    async   ()  =>  {
         it('responds with 202', async   ()  =>  {
             const body  =   { username: "Username", password: "Password" };
             const signup = await request(server).post('/api/signup').send(body);
@@ -232,7 +232,7 @@ describe('the route handlers',  ()  =>  {
             }
             const token = signup.body.token;
             const review = await request(server).post('/api/reviews').send(bookReview).set({ Authorization: token});
-            const update = await request(server).put('/api/reviews').send({review_id: review.body.id, content: "Content", rating: 3, user_id: 1, book_id: 1}).set({ Authorization: token});
+            const update = await request(server).put(`/api/reviews/${review.body.id}`).send({content: "Content", rating: 3, user_id: 1, book_id: 1}).set({ Authorization: token});
             expect(update.status).toBe(202)
         })
 
@@ -253,7 +253,7 @@ describe('the route handlers',  ()  =>  {
             }
             const token = signup.body.token;
             const review = await request(server).post('/api/reviews').send(bookReview).set({ Authorization: token});
-            const update = await request(server).put('/api/reviews').send({review_id: review.body.id, content: "Content", rating: 3, user_id: 1, book_id: 1}).set({ Authorization: token});
+            const update = await request(server).put(`/api/reviews/${review.body.id}`).send({content: "Content", rating: 3, user_id: 1, book_id: 1}).set({ Authorization: token});
             expect(update.body.message).toBe("Success")
         })
 
@@ -273,8 +273,8 @@ describe('the route handlers',  ()  =>  {
                 }
             }
             const token = signup.body.token;
-            const review = await request(server).post('/api/reviews').send(bookReview).set({ Authorization: token});
-            const update = await request(server).put('/api/reviews').send({}).set({ Authorization: token});
+            
+            const update = await request(server).put(`/api/reviews/1`).send({}).set({ Authorization: token});
             expect(update.status).toBe(500)
         })
     })

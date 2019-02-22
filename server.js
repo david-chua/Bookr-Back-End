@@ -184,9 +184,12 @@ server.get('/api/books/',  authenticate,   (req, res)  =>  {
         })
 })
 
-server.put("/api/reviews", authenticate, (req, res) => {
+server.put("/api/reviews/:id", authenticate, (req, res) => {
+  if(!req.body.content || !req.body.rating || !req.body.book_id)    {
+      res.status(500).json({ message: "Please provide all necessary data" });
+  }
   db("reviews")
-    .where("id", req.body.review_id)
+    .where("id", req.params.id)
     .update({
       content: req.body.content,
       rating: req.body.rating,
@@ -198,7 +201,7 @@ server.put("/api/reviews", authenticate, (req, res) => {
     })
     .catch(err => {
       res.status(500).json({
-        error: "Please make sure you provided all of the correct data"
+        error: err
       });
     });
 });
