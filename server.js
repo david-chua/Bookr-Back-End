@@ -7,9 +7,11 @@ const cors=require("cors");
 require("dotenv").config();
 
 const server = express();
-const dbEngine = process.env.DB || "development";
-const dbConfig = require("./knexfile.js")[dbEngine];
-const db = knex(dbConfig);
+const config = require("./knexfile.js");
+const dbEnv = process.env.DB || "development";
+const configObj = config[dbEnv]
+
+const db = knex(configObj);
 server.use(express.json());
 server.use(helmet());
 server.use(cors());
