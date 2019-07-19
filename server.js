@@ -35,14 +35,14 @@ const generateToken = (username, user_id) => {
 };
 
 server.get("/", (req, res) => {
-  res.status(200).json("Hello world");
+  res.status(200).json("Welcome to Bookr");
 });
 
 server.post('/api/signup',  (req, res)  =>  {
     const creds = req.body;
     creds.password = bcrypt.hashSync(creds.password);
     if(creds.username.length && creds.password.length)  {
-            db('users').insert(creds)
+            db('users').insert(creds, "id")
             .then(ids    =>  {
                 const token = generateToken(creds.username, ids[0]);
                 res.status(201).json({ id: ids[0], token: token });
@@ -86,7 +86,7 @@ server.post("/api/reviews", authenticate, (req, res) => {
             author: book.author,
             publisher: book.publisher,
             image: book.image
-          })
+          }, "id")
           .then(ids => {
             book_id = ids[0];
           })
@@ -121,7 +121,7 @@ server.post("/api/reviews", authenticate, (req, res) => {
             book_id: book_id,
             user_id: user_id,
             rating: review.rating
-          })
+          }, "id")
           .then(ids => {
             res.status(201).json({ id: ids[0] });
           })
